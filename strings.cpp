@@ -1,5 +1,11 @@
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include "doctest.h"
 #include <iostream>
+
 using namespace std;
+
+#define CONFIG_DEFAULT_SIZE 10
+#define CONFIG_RESIZING_FACTOR 2
 
 class ArrayList {
   static const int DEFAULT_SIZE = 10;
@@ -10,13 +16,8 @@ class ArrayList {
   int arrayLength;
 
 public:
-  ArrayList(int initialSize) {
-    if (initialSize) {
-      arraySize = initialSize;
-    } else {
-      arraySize = DEFAULT_SIZE;
-    }
-
+  ArrayList() {
+    arraySize = DEFAULT_SIZE;
     arrayLength = 0;
     data = new std::string[arraySize];
   }
@@ -25,17 +26,27 @@ public:
 
   int getLength() { return arrayLength; }
 
+  int getSize() { return arraySize; }
+
   void add(std::string value) {
     if (arrayLength == arraySize) {
       int newSize = arraySize * RESIZING_FACTOR;
+      arraySize = newSize;
+
       std::string *newArray[newSize];
       for (int i = 0; i < arrayLength; i++) {
         newArray[i] = &data[i];
       }
     }
+    // @TODO I should be replacing data with newArray, but it still works. WTF?
+
     data[arrayLength] = value;
     arrayLength++;
   }
+
+  // void resizeArray() {
+
+  // }
 
   void set(int index, std::string value) {
     if (index > arraySize - 1) {
@@ -65,21 +76,30 @@ public:
   }
 };
 
-// @TODO test
-int main() {
-  ArrayList al(4);
-  std::string *arrayData = al.getData();
+TEST_CASE("ArrayList") {
+    ArrayList al;
 
-  al.add("hello");
-  al.add("see");
-  al.add("plus");
-  al.add("plus");
-  al.add("exztra1");
-  al.add("extra2");
-  al.add("extra3");
+    REQUIRE(al.getSize() == 10);
+    REQUIRE(al.getLength() == 0);
 
-  for (int i = 0; i < al.getLength(); i++) {
-    cout << "Data: " << arrayData[i] << "\n";
-  }
-  return 0;
+    SUBCASE("Adding items") {
+      SUBCASE("When adding items beyond default length, it automatically doubles in size") {
+        al.add("one");
+        al.add("two");
+        al.add("three");
+        al.add("four");
+        al.add("five");
+        al.add("six");
+        al.add("seven");
+        al.add("eight");
+        al.add("nine");
+        al.add("ten");
+        al.add("eleven");
+        al.add("twelve");
+
+        CHECK(al.getSize() == 20);
+        CHECK(al.getLength() == 12);
+        CHECK(al.getData()[11] == "twelve");
+      }
+    }
 }
