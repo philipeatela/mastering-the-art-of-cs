@@ -26,17 +26,28 @@ public:
 
   int getSize() { return arraySize; }
 
+  std::string *resizeArray(int newSize) {
+    std::string *newArray;
+    newArray = new std::string[newSize];
+    for (int i = 0; i < arrayLength; i++) {
+      newArray[i] = data[i];
+    }
+    return newArray;
+  }
+
+  std::string get(int index) {
+    if (index < 0 || index > arraySize - 1) {
+      std::cout << "Error - invalid index requested.";
+      return "Error - invalid index requested.";
+    }
+    return data[index];
+  }
+
   void add(std::string value) {
     if (arrayLength == arraySize) {
       int newSize = arraySize * RESIZING_FACTOR;
       arraySize = newSize;
-
-      std::string *newArray;
-      newArray = new std::string[newSize];
-      for (int i = 0; i < arrayLength; i++) {
-        newArray[i] = data[i];
-      }
-      data = newArray;
+      data = resizeArray(newSize);
     }
 
     data[arrayLength] = value;
@@ -44,51 +55,55 @@ public:
   }
 
   void printArray() {
-    std::cout << "printing array:";
+    std::cout << "Printing array:";
 
-    for (int i = 0;i < 20;i++) {
+    for (int i = 0; i < 20; i++) {
+      if (data[i] == "") {
+        break;
+      }
       std::cout << data[i] << "\n";
     }
   }
 
-  void printMyArray(std::string arr[]) {
-    std::cout << "printing my array:";
-
-    for (int i = 0;i < 20;i++) {
-      std::cout << arr[i] << "\n";
+  void set(int index, std::string value) {
+    if (index > arrayLength - 1) {
+      std::cout << "Invalid array position given\n";
+      return;
     }
+    data[index] = value;
+    return;
   }
 
-  // void resizeArray() {
+  void remove(int index) {
+    if (index < 0 || index > arrayLength - 1) {
+      std::cout << "Invalid array position given\n";
+      return;
+    }
 
-  // }
+    std::string *newArray;
+    newArray = new std::string[arraySize];
+    for (int i = 0; i < arrayLength; i++) {
+      int adjustedIndex;
 
-  // void set(int index, std::string value) {
-  //   if (index > arraySize - 1) {
-  //     std::cout << "Invalid array position given";
-  //     return;
-  //   }
-  //   data[index] = value;
-  //   return;
-  // }
+      if (i == index) {
+        continue;
+      } else if (i > index) {
+        adjustedIndex = i - 1;
+      } else {
+        adjustedIndex = i;
+      }
+      newArray[adjustedIndex] = data[i];
+    }
+    data = newArray;
+    arrayLength--;
+  }
 
-  // void remove(int index) {
-  //   if (index < 0 || index > arraySize - 1) {
-  //     std::cout << "Invalid array position given";
-  //     return;
-  //   }
-  //   std::string *newArray[arraySize];
-  //   for (int i = 0; i < arrayLength; i++) {
-  //     newArray[i] = &data[i];
-  //   }
-  // }
-
-  // void clear() {
-  //   // std::string *newArray[DEFAULT_SIZE];
-  //   // data = newArray;
-  //   data = nullptr;
-  //   data = new std::string[DEFAULT_SIZE];
-  // }
+  void clear() {
+    data = nullptr;
+    data = new std::string[DEFAULT_SIZE];
+    arrayLength = 0;
+    arraySize = DEFAULT_SIZE;
+  }
 };
 
 TEST_CASE("ArrayList") {
@@ -105,7 +120,6 @@ TEST_CASE("ArrayList") {
       al.add("three");
       al.add("four");
       al.add("five");
-
       al.add("six");
       al.add("seven");
       al.add("eight");
@@ -117,6 +131,68 @@ TEST_CASE("ArrayList") {
       CHECK(al.getSize() == 20);
       CHECK(al.getLength() == 12);
       CHECK(al.getData()[11] == "twelve");
+
+      al.printArray();
+    }
+  }
+  SUBCASE("Setting items") {
+    SUBCASE("When setting a valid index, it replaces the value") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+
+      al.set(1, "new");
+
+      CHECK(al.get(1) == "new");
+    }
+    SUBCASE("When setting an invalid index, logs an error and doesn't change "
+            "anything") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+
+      al.set(8, "new");
+
+      CHECK(al.get(8) != "new");
+      CHECK(al.get(8) == "");
+    }
+  }
+  SUBCASE("Removing items") {
+    SUBCASE("When removing a valid index, it removes the value") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+
+      al.remove(1);
+
+      CHECK(al.get(1) == "three");
+      CHECK(al.getLength() == 2);
+      CHECK(al.getSize() == 10);
+    }
+    SUBCASE("When removing an invalid index, it logs an error and doesn't "
+            "change anything") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+
+      al.remove(8);
+
+      CHECK(al.get(1) == "two");
+      CHECK(al.getLength() == 3);
+      CHECK(al.getSize() == 10);
+    }
+  }
+  SUBCASE("Clearing items") {
+    SUBCASE("When array is valid, calling clear wipes it out") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+
+      al.clear();
+
+      CHECK(al.get(1) == "");
+      CHECK(al.getLength() == 0);
+      CHECK(al.getSize() == 10);
     }
   }
 }
