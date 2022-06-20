@@ -98,6 +98,15 @@ public:
     arrayLength--;
   }
 
+  int find(std::string value) {
+    for (int i = 0;i < arrayLength;i++) {
+      if (data[i] == value) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   void clear() {
     data = nullptr;
     data = new std::string[DEFAULT_SIZE];
@@ -192,6 +201,26 @@ TEST_CASE("ArrayList") {
 
       CHECK(al.get(1) == "");
       CHECK(al.getLength() == 0);
+      CHECK(al.getSize() == 10);
+    }
+  }
+  SUBCASE("Finding items") {
+    SUBCASE("When value exists in array, finds it") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+
+      CHECK(al.find("three") == 2);
+      CHECK(al.getLength() == 3);
+      CHECK(al.getSize() == 10);
+    }
+    SUBCASE("When value does not exist in array, returns -1") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+
+      CHECK(al.find("abc") == -1);
+      CHECK(al.getLength() == 3);
       CHECK(al.getSize() == 10);
     }
   }
