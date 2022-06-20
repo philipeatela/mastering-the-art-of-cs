@@ -26,13 +26,19 @@ public:
 
   int getSize() { return arraySize; }
 
-  std::string *resizeArray(int newSize) {
+  std::string *resizeArray(std::string *originalArray, int newSize) {
     std::string *newArray;
     newArray = new std::string[newSize];
     for (int i = 0; i < arrayLength; i++) {
-      newArray[i] = data[i];
+      newArray[i] = originalArray[i];
     }
     return newArray;
+  }
+
+  std::string *copyAndResizeArray(std::string *array) {
+    int newSize = arraySize * RESIZING_FACTOR;
+    arraySize = newSize;
+    return resizeArray(array, newSize);
   }
 
   std::string get(int index) {
@@ -45,22 +51,39 @@ public:
 
   void add(std::string value) {
     if (arrayLength == arraySize) {
-      int newSize = arraySize * RESIZING_FACTOR;
-      arraySize = newSize;
-      data = resizeArray(newSize);
+      data = copyAndResizeArray(data);
     }
 
     data[arrayLength] = value;
     arrayLength++;
   }
 
+  void add(int index, std::string value) {
+    std::string *newArray;
+    if (arrayLength == arraySize) {
+      newArray = copyAndResizeArray(data);
+    } else {
+      newArray = new std::string[arraySize];
+    }
+
+    for (int i = 0; i < arrayLength; i++) {
+      if (i == index) {
+        newArray[i + 1] = data[i];
+        newArray[i] = value;
+      } else if (i > index) {
+        newArray[i + 1] = data[i];
+      } else {
+        newArray[i] = data[i];
+      }
+    }
+    data = newArray;
+    arrayLength++;
+  }
+
   void printArray() {
     std::cout << "Printing array:";
 
-    for (int i = 0; i < 20; i++) {
-      if (data[i] == "") {
-        break;
-      }
+    for (int i = 0; i < arrayLength; i++) {
       std::cout << data[i] << "\n";
     }
   }
@@ -99,7 +122,7 @@ public:
   }
 
   int find(std::string value) {
-    for (int i = 0;i < arrayLength;i++) {
+    for (int i = 0; i < arrayLength; i++) {
       if (data[i] == value) {
         return i;
       }
@@ -140,8 +163,38 @@ TEST_CASE("ArrayList") {
       CHECK(al.getSize() == 20);
       CHECK(al.getLength() == 12);
       CHECK(al.getData()[11] == "twelve");
+    }
+    SUBCASE("When adding item to the middle of a full array, resizes and "
+            "reorganizes properly") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+      al.add("four");
+      al.add("five");
+      al.add("six");
+      al.add("seven");
+      al.add("eight");
+      al.add("nine");
+      al.add("ten");
 
-      al.printArray();
+      al.add(5, "new");
+
+      CHECK(al.getSize() == 20);
+      CHECK(al.getLength() == 11);
+      CHECK(al.getData()[5] == "new");
+    }
+    SUBCASE(
+        "When adding item to the middle of an array, reorganizes properly") {
+      al.add("one");
+      al.add("two");
+      al.add("three");
+      al.add("four");
+
+      al.add(2, "new");
+
+      CHECK(al.getSize() == 10);
+      CHECK(al.getLength() == 5);
+      CHECK(al.getData()[2] == "new");
     }
   }
   SUBCASE("Setting items") {
