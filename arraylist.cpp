@@ -1,6 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+
 #include "doctest.h"
-#include <iostream>
+#include <stdexcept>
 
 #define CONFIG_DEFAULT_SIZE 10
 #define CONFIG_RESIZING_FACTOR 2
@@ -26,6 +27,20 @@ public:
 
   int getSize() { return arraySize; }
 
+  void validateIndex(int index) {
+    if (index < 0 || index > arraySize - 1) {
+      throw std::invalid_argument("Error - invalid index requested.");
+    }
+  }
+
+  // also prevents index higher than current arrayLength
+  void validateIndexStrict(int index) {
+    validateIndex(index);
+    if (index > arrayLength - 1) {
+      throw std::invalid_argument("Error - invalid index requested.");
+    }
+  }
+
   std::string *resizeArray(std::string *originalArray, int newSize) {
     std::string *newArray;
     newArray = new std::string[newSize];
@@ -42,10 +57,7 @@ public:
   }
 
   std::string get(int index) {
-    if (index < 0 || index > arraySize - 1) {
-      std::cout << "Error - invalid index requested.";
-      return "Error - invalid index requested.";
-    }
+    validateIndex(index);
     return data[index];
   }
 
@@ -59,6 +71,8 @@ public:
   }
 
   void add(int index, std::string value) {
+    validateIndex(index);
+
     std::string *newArray;
     if (arrayLength == arraySize) {
       newArray = copyAndResizeArray(data);
@@ -89,19 +103,13 @@ public:
   }
 
   void set(int index, std::string value) {
-    if (index > arrayLength - 1) {
-      std::cout << "Invalid array position given\n";
-      return;
-    }
+    validateIndexStrict(index);
     data[index] = value;
     return;
   }
 
   void remove(int index) {
-    if (index < 0 || index > arrayLength - 1) {
-      std::cout << "Invalid array position given\n";
-      return;
-    }
+    validateIndexStrict(index);
 
     std::string *newArray;
     newArray = new std::string[arraySize];
@@ -196,6 +204,9 @@ TEST_CASE("ArrayList") {
       CHECK(al.getLength() == 5);
       CHECK(al.getData()[2] == "new");
     }
+    SUBCASE("When attempting to add item to invalid index, throws exception") {
+      CHECK_THROWS_AS(al.add(-5, "new"), std::invalid_argument);
+    }
   }
   SUBCASE("Setting items") {
     SUBCASE("When setting a valid index, it replaces the value") {
@@ -213,10 +224,7 @@ TEST_CASE("ArrayList") {
       al.add("two");
       al.add("three");
 
-      al.set(8, "new");
-
-      CHECK(al.get(8) != "new");
-      CHECK(al.get(8) == "");
+      CHECK_THROWS_AS(al.set(8, "new"), std::invalid_argument);
     }
   }
   SUBCASE("Removing items") {
@@ -237,11 +245,7 @@ TEST_CASE("ArrayList") {
       al.add("two");
       al.add("three");
 
-      al.remove(8);
-
-      CHECK(al.get(1) == "two");
-      CHECK(al.getLength() == 3);
-      CHECK(al.getSize() == 10);
+      CHECK_THROWS_AS(al.remove(8), std::invalid_argument);
     }
   }
   SUBCASE("Clearing items") {
