@@ -1,9 +1,11 @@
 #include "doctest.h"
 
+// This is unfinished
+
 class StringBuilder {
   static const int DEFAULT_SIZE = 16;
 
-  std::string *data;
+  std::string data;
   int capacity;
   int length;
 
@@ -50,9 +52,12 @@ public:
 
   void append(std::string value) {
     int remainingCapacity = capacity - length;
-
-    if (remainingCapacity < value.length()) {
+    int incomingValueLength = value.length();
+    if (remainingCapacity < incomingValueLength) {
+      expandCapacity(incomingValueLength);
     }
+
+    data = value;
   }
 
   void insert(int offset, std::string value) {}
