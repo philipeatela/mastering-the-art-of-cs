@@ -31,3 +31,19 @@ When inserting on a specific index, we'll always have to iterate through the arr
 The rest should be pretty intuitive. For finding and removing we will always have to iterate the array, so it will roughly be O(N).
 
 And set, get (by index) and clearig is O(1) because no iterating is required.
+
+## Linked List
+
+These data structures are widely used to implement popular solutions such as hash tables, stacks and queues. It's main advantage when compared to simple arrays is that the data is not stored in continuous positions in memory, which allows us to mutate the list without having to reorganize all the data around it.
+
+The nature of the data structure makes the insertion and deletion of items very easy due to having no need to reorganize the whole thing, meaning these operations can be done in constant time (O(1)). 
+
+However, operations to retrieve data from specific positions or with specific values are very inefficient due to the lack of indexing, meaning that most of these might have to go through the entire list to find something (O(N)).
+
+The list implemented on this project is a Singly Linked List of String values, with the following operations:
+
+- append (insert at last position)
+- insert (insert item at a certain position)
+- remove (remove first occurence of a key)
+- get (find item by index)
+- find (find item by value)
