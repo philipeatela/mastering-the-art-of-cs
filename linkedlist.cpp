@@ -1,3 +1,5 @@
+#include <exception>
+#include <stdexcept>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "doctest.h"
@@ -24,25 +26,52 @@ public:
     head = new_node;
   }
 
-  // deletes first occurence
-  // void remove(std::string key) {
-  //    if (head == NULL)
-  //       return;
+  Node* search(std::string key) {
+    if (head == NULL)
+      throw "Error - list is empty.";
 
-  //   if (node == head) {
-  //     head = node.next;
-  //     return;
-  //   }
-  //   Node* temp = *head_ref;
+    // declare helper pointer
+    Node *temp;
+    // point it to the start of the list
+    temp = head;
+    // don't stop until next node is NULL
+    while (temp != NULL) {
+      if (key == temp->data) {
+        return temp;
+      }
+      temp = temp->next;
+    }
+      throw "Error - could not find key in list.";
+  }
 
-  //   temp = head;
+  // removes first occurence of key
+  void remove(std::string key) {
+    // handle empty list
+    if (head == NULL)
+      return;
 
-  //   while (temp != NULL) {
-  //     std::cout << ptr->data << " ";
-  //     ptr = ptr->next;
-  //   }
+    Node *to_be_deleted = search(key);
+    std::cout << "to_be_deleted:" << to_be_deleted->data << " ";
 
-  // }
+    // handle deleting head node
+    if (to_be_deleted == head) {
+      head = to_be_deleted->next;
+      delete to_be_deleted;
+      return;
+    }
+    
+    // iterate until element is the previous to the one that will be deleted,
+    // then delete and readjust pointers
+    Node* temp = head;
+    temp = head;
+    while (temp != NULL) {
+      if (temp->next == to_be_deleted) {
+        temp->next = temp->next->next;
+        delete to_be_deleted;
+        return;
+      }
+    }
+  }
 
   void display() {
     Node *ptr;
@@ -57,15 +86,36 @@ public:
 TEST_CASE("LinkedList") {
   LinkedList ll;
 
-  SUBCASE("Appending items") {
-    SUBCASE("append works") {
-      ll.append("one");
-      ll.append("two");
-      ll.append("three");
+  SUBCASE("append") {
+    ll.append("one");
+    ll.append("two");
+    ll.append("three");
 
-      ll.display();
+    ll.display();
 
-      CHECK(20 == 20);
-    }
+    CHECK(20 == 20);
+  }
+
+  SUBCASE("search") {
+    ll.append("one");
+    ll.append("two");
+    ll.append("three");
+    ll.append("four");
+
+    Node *item = ll.search("three");
+
+    CHECK(item->data == "three");
+  }
+
+  SUBCASE("remove") {
+    ll.append("one");
+    ll.append("two");
+    ll.append("three");
+    ll.append("four");
+
+    ll.remove("three");
+
+    ll.display();
+    // CHECK(item->data == "three");
   }
 }
