@@ -36,14 +36,30 @@ And set, get (by index) and clearig is O(1) because no iterating is required.
 
 These data structures are widely used to implement popular solutions such as hash tables, stacks and queues. It's main advantage when compared to simple arrays is that the data is not stored in continuous positions in memory, which allows us to mutate the list without having to reorganize all the data around it.
 
-The nature of the data structure makes the insertion and deletion of items very easy due to having no need to reorganize the whole thing, meaning these operations can be done in constant time (O(1)). 
+The nature of the data structure makes the insertion and deletion of items very easy due to having no need to reorganize the whole thing, meaning these operations can be done in constant time (O(1)) ASSUMING we are already iterating the list.
+
+In short, inserting during runtime is super fast, but if we have to iterate the list to get there that advantage kinda fades.
+
+Also important to mention that the size of the list does not need to be known in advance here. We can increase it in runtime without any issues.
 
 However, operations to retrieve data from specific positions or with specific values are very inefficient due to the lack of indexing, meaning that most of these might have to go through the entire list to find something (O(N)).
 
 The list implemented on this project is a Singly Linked List of String values, with the following operations:
 
-- append (insert at last position)
-- insert (insert item at a certain position)
+- append (insert at last position, innefficient since we need to iterate the list to insert at the end)
+- appendAtStart (insert item at first position)
+- insert (insert item at given position)
 - remove (remove first occurence of a key)
 - get (find item by index)
 - find (find item by value)
+
+| Operation     | Runtime       |
+| ------------- |:-------------:|
+| append        | O(n)     |
+| appendAtStart | O(1)     |
+| insert        | O(n)     |
+| remove        | O(n)     |
+| find          | O(n)     |
+| get           | O(n)     |
+
+Removing from the end or from the start (like a queue or stack) would be O(1).
