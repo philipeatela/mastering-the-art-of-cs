@@ -1,17 +1,18 @@
 #include <exception>
 #include <stdexcept>
+#include <iostream>
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include "doctest.h"
 #include <iostream>
-
-class Node {
+#include "linkedlist.h"
+class Node : public INode {
 public:
   std::string data;
   Node *next; // REFERENCE to a node
 };
 
-class LinkedList {
+class LinkedList : public ILinkedList {
   Node *head = NULL; // REFERENCE to FIRST node
 
 public:
@@ -147,7 +148,14 @@ public:
       ptr = ptr->next;
     }
   }
+
+  void destroy() { delete this; }
 };
+
+// extern "C" __declspec(dllexport) ILinkedList* __cdecl create_klass()
+// {
+//     return new LinkedList;
+// }
 
 TEST_CASE("LinkedList") {
   LinkedList ll;
